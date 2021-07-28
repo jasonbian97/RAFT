@@ -142,7 +142,7 @@ def train(args):
     if args.restore_ckpt is not None:
         model.load_state_dict(torch.load(args.restore_ckpt), strict=False)
 
-    model.cuda()
+    model.to(f"cuda:{args.gpus[0]}")
     model.train()
 
     if args.stage != 'chairs':
@@ -163,12 +163,12 @@ def train(args):
 
         for i_batch, data_blob in enumerate(train_loader):
             optimizer.zero_grad()
-            image1, image2, flow, valid = [x.to(device=f"cuda:{args.gpus[0]}") for x in data_blob]
+            image1, image2, flow, valid = [x.to(f"cuda:{args.gpus[0]}") for x in data_blob]
 
             if args.add_noise:
                 stdv = np.random.uniform(0.0, 5.0)
-                image1 = (image1 + stdv * torch.randn(*image1.shape).to(device=f"cuda:{args.gpus[0]}")).clamp(0.0, 255.0)
-                image2 = (image2 + stdv * torch.randn(*image2.shape)).to(device=f"cuda:{args.gpus[0]}").clamp(0.0, 255.0)
+                image1 = (image1 + stdv * torch.randn(*image1.shape).to(f"cuda:{args.gpus[0]}")).clamp(0.0, 255.0)
+                image2 = (image2 + stdv * torch.randn(*image2.shape)).to(f"cuda:{args.gpus[0]}").clamp(0.0, 255.0)
 
             flow_predictions = model(image1, image2, iters=args.iters)            
 
