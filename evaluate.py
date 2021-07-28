@@ -12,11 +12,10 @@ import torch.nn.functional as F
 import matplotlib.pyplot as plt
 
 import datasets
-from utils import flow_viz
-from utils import frame_utils
-
-from raft import RAFT
-from utils.utils import InputPadder, forward_interpolate
+from core.utils import flow_viz
+from core.utils import frame_utils
+from core.raft import RAFT
+from core.utils.utils import InputPadder, forward_interpolate
 
 
 @torch.no_grad()
@@ -78,7 +77,7 @@ def create_kitti_submission(model, iters=24, output_path='kitti_submission'):
 def validate_chairs(model, iters=24):
     """ Perform evaluation on the FlyingChairs (test) split """
     model.eval()
-    device = model.device
+    device = f"cuda:{model.args.gpus[0]}"
     epe_list = []
 
     val_dataset = datasets.FlyingChairs(split='validation')
@@ -100,7 +99,7 @@ def validate_chairs(model, iters=24):
 def validate_sintel(model, iters=32):
     """ Peform validation using the Sintel (train) split """
     model.eval()
-    device = model.device
+    device = f"cuda:{model.args.gpus[0]}"
     results = {}
     for dstype in ['clean', 'final']:
         val_dataset = datasets.MpiSintel(split='training', dstype=dstype)
@@ -136,7 +135,7 @@ def validate_sintel(model, iters=32):
 def validate_kitti(model, iters=24):
     """ Peform validation using the KITTI-2015 (train) split """
     model.eval()
-    device = model.device
+    device = f"cuda:{model.args.gpus[0]}"
     val_dataset = datasets.KITTI(split='training')
 
     out_list, epe_list = [], []
